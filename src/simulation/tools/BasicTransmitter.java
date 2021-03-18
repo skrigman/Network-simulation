@@ -118,11 +118,12 @@ public class BasicTransmitter
 		}
 	}
 	
-	public void sendPacketIfNeeded( Time t) {
+	public void sendPacketIfNeeded( Time t, List listOfPktsInCurTime) {
 		
 		//System.out.println("time="+t.tickInMinute()+" inmin="+ listOfPktsTime.contains((Long)t.tickInMinute()));
 		if ( listOfPktsTime.contains( t.tickInMinute() )) {
-			genAPacket(this.pktCount, t);
+			Packet pkt = genAPacket(this.pktCount, t);
+			listOfPktsInCurTime.add(pkt);
 			this.pktCount ++;
 		}
 	}
@@ -146,9 +147,11 @@ public class BasicTransmitter
 				this.xLocation, 
 				this.yLocation);
 		this.listOfPkts.add( pkt );
-		
+  		problem.pktListJSONObject.put(pkt.genJSONTx());
+  		
 		return pkt;
 	}
+	/*
 	public void writePktsToJson( String inputFile ) {
 		
 	    JSONArray pktListJSONObject = new JSONArray();
@@ -164,5 +167,5 @@ public class BasicTransmitter
 	    } catch (IOException e) {
 	        e.printStackTrace();
 	    }
-	}
+	}*/
 }

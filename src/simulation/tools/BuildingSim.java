@@ -22,29 +22,37 @@ public class BuildingSim {
 		Time time = new Time();
 		SolutionGenerator solution = new SolutionGenerator();
 		solution.run( problem );
+		List<Packet> listOfPktsInCurTime = new ArrayList<Packet>();
 		while ( time.getTime()<testDuration ) {
-			//double currentTime = time.getTime();
+			listOfPktsInCurTime.clear();
 			for (BasicTransmitter tx : problem.listOfTx) {
 				if( time.minuteStart() ) {
 					System.out.println("minute starting. time is " + time.getTime());
 					tx.genPktListForNextMin( time );
 				}
-				tx.sendPacketIfNeeded( time );
+				tx.sendPacketIfNeeded( time, listOfPktsInCurTime );
 			}
-			for (BasicSniffer tx : problem.listOfSniffers) {
+			for (BasicSniffer sniffer : problem.listOfSniffers) {
+				sniffer.gotThesePkts(listOfPktsInCurTime);
 			}
 			time.nextTick();
 		}
 	}
 	
 	public static void postProccessing ( BasicProblem problem, int i, String filePath ) {
-	    File file = new File(filePath);
-	    if (file.mkdirs()) {
+	    File dir = new File(filePath);
+	    if (dir.mkdirs()) {
 	    	System.out.println("Directory " + filePath + " is created!");
 	    }
-		for (BasicTransmitter tx : problem.listOfTx) {
-			tx.writePktsToJson( filePath + "/pkts_" + i + ".json" );
-		}
+	    String packetsFile = filePath + "/pkts_" + i + ".json";
+	    try {
+	        FileWriter file = new FileWriter(packetsFile, true);
+	        file.write(problem.pktListJSONObject.toString());
+		    System.out.println(problem.pktListJSONObject.toString());
+	        file.close();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
 		ResultsCheckers checker = new ResultsCheckers();
 		checker.test( problem );		
 	}

@@ -3,6 +3,8 @@ package simulation.tools;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+
 public class BasicProblem {
 	//test parameters
 	private int testId = 0;
@@ -16,6 +18,7 @@ public class BasicProblem {
 
 	public List<BasicTransmitter> listOfTx = new ArrayList<BasicTransmitter>();
 	public List<BasicSniffer> listOfSniffers = new ArrayList<BasicSniffer>();
+    public JSONArray pktListJSONObject = new JSONArray();
 
 	public String toString () {
 		return "testId=" + this.testId + 

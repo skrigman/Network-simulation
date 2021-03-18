@@ -1,5 +1,7 @@
 package simulation.tools;
 
+import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -124,5 +126,16 @@ public class BasicSniffer {
 	      System.out.println(jsonObject.toString());
 	    }
 	    return jsonObject;
+	}
+	public void gotThesePkts ( List<Packet> listOfPktsInCurTime ) {
+		System.out.println("Sniffer=" + this.getId() + listOfPktsInCurTime.toString());
+		if ( !listOfPktsInCurTime.isEmpty() ) {
+			for(Packet pkt : listOfPktsInCurTime) {
+				//check distance to sender
+				System.out.println("pkt = " + pkt.toString());
+				if ( listOfPktsInCurTime.size() == 1 ) {
+				}
+			}
+		}
 	}
 }
