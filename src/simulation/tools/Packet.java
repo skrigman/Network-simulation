@@ -13,17 +13,15 @@ public class Packet {
 	private int pktType;
 	private int channel;
 	private float power;
-	private int xLocation;
-	private int yLocation;
+	private Point location;
 	
 	public Packet (int id, 
 			int srcId, int dstId, int ch, 
 			float po, 
 			double time, 
 			int type, 
-			int len, 
-			int x, 
-			int y) {
+			int len,  
+			Point p) {
 		this.packetId = id;
 		this.srcId = srcId;
 		this.dstId = dstId;
@@ -32,8 +30,7 @@ public class Packet {
 		this.timestamp = time;
 		this.pktType = type;
 		this.length = len;
-		this.xLocation = x;
-		this.yLocation = y;
+		this.location = p;
 		
 		writePktToJson();
 	}
@@ -54,8 +51,8 @@ public class Packet {
 		  jsonObject.put("timestamp", this.timestamp);
 		  jsonObject.put("pktType", this.pktType);
 		  jsonObject.put("length", this.length);
-		  jsonObject.put("xLocation", this.xLocation);
-		  jsonObject.put("yLocation", this.yLocation);
+		  jsonObject.put("xLocation", this.location.getX());
+		  jsonObject.put("yLocation", this.location.getY());
 	    } catch (JSONException e) {
 	      System.out.println(jsonObject.toString());
 	    }
@@ -85,11 +82,8 @@ public class Packet {
 	public int getLength() {
 		return length;
 	}
-	public int getXLocation() {
-		return xLocation;
-	}
-	public int getYLocation() {
-		return yLocation;
+	public Point getLocation() {
+		return location;
 	}
 
 }

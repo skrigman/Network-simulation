@@ -1,20 +1,21 @@
 package simulation.tools;
 
-import java.io.FileWriter;
-import java.io.IOException;
+//import java.io.FileWriter;
+//import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONArray;
+//import org.json.JSONArray;
 
 public class BasicTransmitter
 {
 	private int id;
-	private int xLocation;
-	private int yLocation;
+	private Point location;
+	//private int xLocation;
+	//private int yLocation;
 	private int channel;
 	private float txPower;
 	private int txRate; //packets per minute
@@ -25,11 +26,11 @@ public class BasicTransmitter
 	private List<Long> listOfPktsTime = new ArrayList<Long>();
 	private List<Packet> listOfPkts = new ArrayList<Packet>();
 	
-	public BasicTransmitter (int id, int xLocation, int yLocation, int channel,float txPower, int txRate, BasicProblem problem )
+	public BasicTransmitter (int id, Point p, int channel,float txPower, int txRate, BasicProblem problem )
 	{
 		this.id = id;
-		this.xLocation = xLocation;
-		this.yLocation = yLocation;
+		this.location = p;
+		//this.yLocation = yLocation;
 		this.channel = channel;
 		this.txPower = txPower;
 		this.txRate = txRate;	
@@ -43,8 +44,10 @@ public class BasicTransmitter
 	    try {
 		      //System.out.println(jsonTx.toString());
 	    	this.id = (int)jsonTx.get("tx_id");
-	    	this.xLocation = (int)jsonTx.get("X_location");
-	    	this.yLocation = (int)jsonTx.get("Y_location");
+	    	Point location = new Point (
+	    			Double.parseDouble(jsonTx.optString("X_location","none") ),
+	    			Double.parseDouble(jsonTx.optString("Y_location","none") ));
+	    	this.location = location;
 	    	this.channel = (int)jsonTx.get("channel");
 	    	this.txPower = (int)jsonTx.get("tx_power");
 	    	this.txRate = (int)jsonTx.get("tx_rate");
@@ -53,15 +56,14 @@ public class BasicTransmitter
 		    }
 	}
 	
-	public void setLocation (int x, int y) {
-		this.xLocation = x;
-		this.yLocation = y;
+	public void setLocation (double x, double y) {
+		this.location.setX(x);
+		this.location.setY(y);
 	}
 	
 	public String toString(){
 		String txString = "ID=" + id + 
-		          " x=" + xLocation +
-		          " y=" + yLocation +
+		          " location=" + location.toString() +
 		          " channel=" + channel +
 		          " power=" + txPower +
 		          " rate=" + txRate +
@@ -72,11 +74,8 @@ public class BasicTransmitter
 	public int getId (){
 		return id;
 	}
-	public int getX (){
-		return xLocation;
-	}
-	public int getY (){
-		return yLocation;
+	public Point getLocation (){
+		return location;
 	}
 	public int getChannel (){
 		return channel;
@@ -93,8 +92,8 @@ public class BasicTransmitter
 	    //Inserting key-value pairs into the json object
 	    try {
 	      jsonObject.put("tx_id", this.id);
-		  jsonObject.put("X_location", this.xLocation);
-		  jsonObject.put("Y_location", this.yLocation);
+		  jsonObject.put("X_location", this.location.getX());
+		  jsonObject.put("Y_location", this.location.getY());
 		  jsonObject.put("channel", channel);
 		  jsonObject.put("tx_power", this.txPower);
 		  jsonObject.put("tx_rate", this.txRate);
@@ -118,7 +117,7 @@ public class BasicTransmitter
 		}
 	}
 	
-	public void sendPacketIfNeeded( Time t, List listOfPktsInCurTime) {
+	public void sendPacketIfNeeded( Time t, List<Packet> listOfPktsInCurTime) {
 		
 		//System.out.println("time="+t.tickInMinute()+" inmin="+ listOfPktsTime.contains((Long)t.tickInMinute()));
 		if ( listOfPktsTime.contains( t.tickInMinute() )) {
@@ -144,8 +143,8 @@ public class BasicTransmitter
 				t.getTime(), 
 				type, 
 				length, 
-				this.xLocation, 
-				this.yLocation);
+				//this.xLocation, 
+				this.location);
 		this.listOfPkts.add( pkt );
   		problem.pktListJSONObject.put(pkt.genJSONTx());
   		

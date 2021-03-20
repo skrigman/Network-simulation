@@ -21,9 +21,10 @@ public class ProblemGenerator {
 		
 		Random num = new Random();
 		for(int i=0;i<numOfTx;i++){
-			int x = num.nextInt(this.problem.getMaxX());
-			int y = num.nextInt(this.problem.getMaxY());
-			this.problem.listOfTx.add(new BasicTransmitter(i, x, y, channel, txPower, txRate, this.problem));
+			Point location = new Point(
+					(double)num.nextInt(this.problem.getMaxX()),
+					(double)num.nextInt(this.problem.getMaxY()) );
+			this.problem.listOfTx.add(new BasicTransmitter(i, location, channel, txPower, txRate, this.problem));
 		}
 		//Writing Transmitters list to JSON file
 	    JSONArray txListJSONObject = new JSONArray();
@@ -50,15 +51,14 @@ public class ProblemGenerator {
 	private JSONArray generateSniffers ( int numOfSniffers){
 		//Random num = new Random();
 		for(int i=0;i<numOfSniffers;i++){
-			int x = 0;
-			int y = 0;
+			Point location = new Point(0,0);
 			int channel = 0;
 			int coverRange = 50;
 			double rxPower = 0.1; 
 			boolean dir = false;
 			double rxAngle = 0.1;
 			double rxDir = 0.1;
-			this.problem.listOfSniffers.add(new BasicSniffer(i, x, y, channel, coverRange, rxPower, dir, rxAngle, rxDir));
+			this.problem.listOfSniffers.add(new BasicSniffer(i, location, channel, coverRange, rxPower, dir, rxAngle, rxDir));
 		}
 		//Writing Transmitters list to JSON array
 	    JSONArray sniffersListJSONObject = new JSONArray();

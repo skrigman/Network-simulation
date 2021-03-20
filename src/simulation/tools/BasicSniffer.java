@@ -7,8 +7,7 @@ import org.json.JSONObject;
 
 public class BasicSniffer {
 	private int id;
-	private int xLocation;
-	private int yLocation;
+	private Point location;
 	private int channel;
 	private int coverRange;
 	private double rxPower;
@@ -18,8 +17,7 @@ public class BasicSniffer {
 
 	public BasicSniffer (
 			int id, 
-			int xLocation, 
-			int yLocation, 
+			Point p, 
 			int channel,
 			int coverRange,
 			double rxPower, 
@@ -28,8 +26,7 @@ public class BasicSniffer {
 			double rxDirection)
 	{
 		this.id = id;
-		this.xLocation = xLocation;
-		this.yLocation = yLocation;
+		this.location = p;
 		this.channel = channel;
 		this.coverRange = coverRange;
 		this.rxPower = rxPower;
@@ -42,8 +39,10 @@ public class BasicSniffer {
 	    try {
 		    //System.out.println(JSONSniffer.toString());
 	    	this.id = (int)JSONSniffer.get("sniffer_id");
-	    	this.xLocation = (int)JSONSniffer.get("X_location");
-	    	this.yLocation = (int)JSONSniffer.get("Y_location");
+	    	Point location = new Point (
+	    			Double.parseDouble(JSONSniffer.optString("X_location","none") ),
+	    			Double.parseDouble(JSONSniffer.optString("Y_location","none") ));
+	    	this.location = location;
 	    	this.channel = (int)JSONSniffer.get("channel");
 	    	this.coverRange = (int)JSONSniffer.get("cover_range");
 	    	this.rxPower = (double)JSONSniffer.get("sniffer_power");
@@ -56,9 +55,12 @@ public class BasicSniffer {
 	    //System.out.println(this.toString());
 	}
 		
-	public void setLocation (int x, int y) {
-		this.xLocation = x;
-		this.yLocation = y;
+	public void setLocation (Point p) {
+		this.location = p;
+	}
+	public void setLocation (double x, double y) {
+		this.location.setX(x);
+		this.location.setY(y);
 	}
 	
 	public void setDirection (double direction) {
@@ -67,8 +69,7 @@ public class BasicSniffer {
 	
 	public String toString(){
 		String txString = "ID=" + id + 
-		          " x=" + xLocation +
-		          " y=" + yLocation +
+		          " location=" + location.toString() +
 		          " channel=" + channel +
 		          " coverR=" + coverRange +
 		          " power=" + rxPower;
@@ -84,11 +85,8 @@ public class BasicSniffer {
 	public int getId (){
 		return id;
 	}
-	public int getX (){
-		return xLocation;
-	}
-	public int getY (){
-		return yLocation;
+	public Point getLocation (){
+		return location;
 	}
 	public int getChannel (){
 		return channel;
@@ -114,8 +112,8 @@ public class BasicSniffer {
 	    //Inserting key-value pairs into the json object
 	    try {
 	      jsonObject.put("sniffer_id", this.id);
-		  jsonObject.put("X_location", this.xLocation);
-		  jsonObject.put("Y_location", this.yLocation);
+		  jsonObject.put("X_location", this.location.getX());
+		  jsonObject.put("Y_location", this.location.getY());
 		  jsonObject.put("channel", channel);
 		  jsonObject.put("cover range", coverRange);
 		  jsonObject.put("sniffer_power", this.rxPower);
@@ -128,14 +126,25 @@ public class BasicSniffer {
 	    return jsonObject;
 	}
 	public void gotThesePkts ( List<Packet> listOfPktsInCurTime ) {
+		float pktPoweronSnifferLocation;
 		System.out.println("Sniffer=" + this.getId() + listOfPktsInCurTime.toString());
 		if ( !listOfPktsInCurTime.isEmpty() ) {
 			for(Packet pkt : listOfPktsInCurTime) {
 				//check distance to sender
 				System.out.println("pkt = " + pkt.toString());
-				if ( listOfPktsInCurTime.size() == 1 ) {
+				double distanceToSender = this.location.distanceTo(pkt.getLocation());
+				pktPoweronSnifferLocation = pkt.getPower();
+				if ( distanceToSender > 5.0 ) {
+					//reduction of 6db each 10 meters
+					pktPoweronSnifferLocation -= (distanceToSender / 10) * 6;
+				}
+				if (pktPoweronSnifferLocation > this.rxPower) {
+					gotThisPkt( pkt );
 				}
 			}
 		}
+	}
+	private void gotThisPkt (Packet pkt) {
+		
 	}
 }
