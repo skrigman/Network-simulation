@@ -14,7 +14,8 @@ public class Packet {
 	private int channel;
 	private float power;
 	private Point location;
-	
+	public float pwrAtSnifferLocation;
+
 	public Packet (int id, 
 			int srcId, int dstId, int ch, 
 			float po, 
@@ -38,7 +39,7 @@ public class Packet {
 	private void writePktToJson() {
 		
 	}
-	public JSONObject genJSONTx () {
+	public JSONObject genJSONPkt () {
 	    //Creating a JSONObject object
 	    JSONObject jsonObject = new JSONObject();
 	    //Inserting key-value pairs into the json object

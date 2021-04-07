@@ -146,7 +146,7 @@ public class BasicTransmitter
 				//this.xLocation, 
 				this.location);
 		this.listOfPkts.add( pkt );
-  		problem.pktListJSONObject.put(pkt.genJSONTx());
+  		problem.pktListJSONObject.put(pkt.genJSONPkt());
   		
 		return pkt;
 	}

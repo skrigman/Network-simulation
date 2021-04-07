@@ -58,7 +58,7 @@ public class ProblemGenerator {
 			boolean dir = false;
 			double rxAngle = 0.1;
 			double rxDir = 0.1;
-			this.problem.listOfSniffers.add(new BasicSniffer(i, location, channel, coverRange, rxPower, dir, rxAngle, rxDir));
+			this.problem.listOfSniffers.add(new BasicSniffer(i, location, channel, coverRange, rxPower, dir, rxAngle, rxDir, this.problem));
 		}
 		//Writing Transmitters list to JSON array
 	    JSONArray sniffersListJSONObject = new JSONArray();
@@ -74,7 +74,7 @@ public class ProblemGenerator {
 		for (int i=0; i<this.problem.getNumOfSniffers(); i++ ) {
 			try {
 				JSONObject JSONSniffer = (JSONObject)JSONSniffersArray.get(i);
-				this.problem.listOfSniffers.add(new BasicSniffer(JSONSniffer));				
+				this.problem.listOfSniffers.add(new BasicSniffer(JSONSniffer, this.problem));				
 			} catch (JSONException e) {
 				System.out.println("Failed read " + i + " sniffer data");
 			}

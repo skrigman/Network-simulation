@@ -14,6 +14,7 @@ public class BasicSniffer {
 	private boolean isDirectional;
 	private double rxAngle;
 	private double rxDirection;
+	private BasicProblem problem;
 
 	public BasicSniffer (
 			int id, 
@@ -23,7 +24,7 @@ public class BasicSniffer {
 			double rxPower, 
 			boolean isDirectional,
 			double rxAngle,
-			double rxDirection)
+			double rxDirection, BasicProblem problem )
 	{
 		this.id = id;
 		this.location = p;
@@ -33,9 +34,11 @@ public class BasicSniffer {
 		this.isDirectional = isDirectional;
 		this.rxAngle = rxAngle;	
 		this.rxDirection = rxDirection;	
+		this.problem = problem;
 	}
 	
-	public BasicSniffer ( JSONObject JSONSniffer ) {
+	public BasicSniffer ( JSONObject JSONSniffer, BasicProblem problem ) {
+	    this.problem = problem;
 	    try {
 		    //System.out.println(JSONSniffer.toString());
 	    	this.id = (int)JSONSniffer.get("sniffer_id");
@@ -125,26 +128,54 @@ public class BasicSniffer {
 	    }
 	    return jsonObject;
 	}
+	private float pktPowerAtSnifferLocation ( Packet pkt) {
+		float pktPowerAtSnifferLocation;
+		double distanceToSender = this.location.distanceTo(pkt.getLocation());
+		pktPowerAtSnifferLocation = pkt.getPower();
+		if ( distanceToSender > 5.0 ) {
+			//reduction of 6db each 10 meters
+			pktPowerAtSnifferLocation -= (distanceToSender / 10) * 6;
+		}
+		return pktPowerAtSnifferLocation;
+	}
 	public void gotThesePkts ( List<Packet> listOfPktsInCurTime ) {
-		float pktPoweronSnifferLocation;
 		System.out.println("Sniffer=" + this.getId() + listOfPktsInCurTime.toString());
 		if ( !listOfPktsInCurTime.isEmpty() ) {
 			for(Packet pkt : listOfPktsInCurTime) {
-				//check distance to sender
-				System.out.println("pkt = " + pkt.toString());
-				double distanceToSender = this.location.distanceTo(pkt.getLocation());
-				pktPoweronSnifferLocation = pkt.getPower();
-				if ( distanceToSender > 5.0 ) {
-					//reduction of 6db each 10 meters
-					pktPoweronSnifferLocation -= (distanceToSender / 10) * 6;
-				}
-				if (pktPoweronSnifferLocation > this.rxPower) {
+				pkt.pwrAtSnifferLocation = pktPowerAtSnifferLocation(pkt);
+			}
+			if (listOfPktsInCurTime.size() == 1) {
+				//Only one packet at this slot, check the distance
+				Packet pkt = listOfPktsInCurTime.get(0);
+				if (pkt.pwrAtSnifferLocation > this.rxPower) {
 					gotThisPkt( pkt );
+				}
+			} else { //there are more than 1 pkt
+				//look for the one with highest power:
+				float maxPwr = 0;
+				int pktIndex = 0;
+				Packet pktWithMaxPwr;
+				float pwrOfRestPkts = 0;
+				for(Packet pkt : listOfPktsInCurTime) {
+					if ( pkt.pwrAtSnifferLocation > maxPwr ) {
+						pktIndex = listOfPktsInCurTime.indexOf(pkt);
+						maxPwr = pkt.pwrAtSnifferLocation;
+					}
+				}		
+				pktWithMaxPwr = listOfPktsInCurTime.get(pktIndex);
+				listOfPktsInCurTime.remove(pktIndex);
+				for(Packet pkt : listOfPktsInCurTime) {
+					pwrOfRestPkts += pkt.pwrAtSnifferLocation;
+				}
+				if ((pktWithMaxPwr.pwrAtSnifferLocation > pwrOfRestPkts) &
+					((pktWithMaxPwr.pwrAtSnifferLocation - pwrOfRestPkts) > this.rxPower)	) {
+					gotThisPkt( pktWithMaxPwr );
 				}
 			}
 		}
 	}
 	private void gotThisPkt (Packet pkt) {
+  		this.problem.SniffedPktListJSONObject.put(pkt.genJSONPkt());
 		
 	}
 }

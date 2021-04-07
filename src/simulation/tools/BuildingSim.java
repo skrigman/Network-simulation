@@ -44,17 +44,26 @@ public class BuildingSim {
 	    if (dir.mkdirs()) {
 	    	System.out.println("Directory " + filePath + " is created!");
 	    }
-	    String packetsFile = filePath + "/pkts_" + i + ".json";
+	    String txPacketsFile = filePath + "/pkts_" + i + ".json";
 	    try {
-	        FileWriter file = new FileWriter(packetsFile, true);
+	        FileWriter file = new FileWriter(txPacketsFile, true);
 	        file.write(problem.pktListJSONObject.toString());
-		    System.out.println(problem.pktListJSONObject.toString());
+		    //System.out.println(problem.pktListJSONObject.toString());
 	        file.close();
 	    } catch (IOException e) {
 	        e.printStackTrace();
 	    }
-		ResultsCheckers checker = new ResultsCheckers();
-		checker.test( problem );		
+	    String sniffedPacketsFile = filePath + "/sniffed_pkts_" + i + ".json";
+	    try {
+	        FileWriter file = new FileWriter(sniffedPacketsFile, true);
+	        file.write(problem.SniffedPktListJSONObject.toString());
+		    //System.out.println(problem.pktListJSONObject.toString());
+	        file.close();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+		//ResultsCheckers checker = new ResultsCheckers();
+		//checker.test( problem );		
 	}
 	
 	public static void runAproblem(int i, String testName, double testDuration) {

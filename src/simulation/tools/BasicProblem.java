@@ -19,6 +19,7 @@ public class BasicProblem {
 	public List<BasicTransmitter> listOfTx = new ArrayList<BasicTransmitter>();
 	public List<BasicSniffer> listOfSniffers = new ArrayList<BasicSniffer>();
     public JSONArray pktListJSONObject = new JSONArray();
+    public JSONArray SniffedPktListJSONObject = new JSONArray();
 
 	public String toString () {
 		return "testId=" + this.testId + 
