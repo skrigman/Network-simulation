@@ -14,7 +14,7 @@ public class Packet {
 	private int channel;
 	private float power;
 	private Point location;
-	public float pwrAtSnifferLocation;
+	public double pwrAtSnifferLocation;
 
 	public Packet (int id, 
 			int srcId, int dstId, int ch, 

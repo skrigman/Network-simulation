@@ -33,7 +33,13 @@ public class BuildingSim {
 				tx.sendPacketIfNeeded( time, listOfPktsInCurTime );
 			}
 			for (BasicSniffer sniffer : problem.listOfSniffers) {
-				sniffer.gotThesePkts(listOfPktsInCurTime);
+				List<Packet> listOfPktsInCurTimeAndCh = new ArrayList<Packet>();
+				for (Packet pkt : listOfPktsInCurTime) {
+					if (pkt.getChannel() == sniffer.getChannel() ) {
+						listOfPktsInCurTimeAndCh.add(pkt);
+					}
+				}
+				sniffer.gotThesePkts(listOfPktsInCurTimeAndCh);
 			}
 			time.nextTick();
 		}

@@ -1,7 +1,7 @@
 package simulation.tools;
 
 import java.util.List;
-
+import java.math.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -128,18 +128,22 @@ public class BasicSniffer {
 	    }
 	    return jsonObject;
 	}
-	private float pktPowerAtSnifferLocation ( Packet pkt) {
-		float pktPowerAtSnifferLocation;
+	private double pktPowerAtSnifferLocation ( Packet pkt) {
+		double pktPowerAtSnifferLocation;
+		double pwrReduction = 1.0;
 		double distanceToSender = this.location.distanceTo(pkt.getLocation());
-		pktPowerAtSnifferLocation = pkt.getPower();
+		//pktPowerAtSnifferLocation = pkt.getPower();
+		double pwrReductionInDb = 0.0;
 		if ( distanceToSender > 5.0 ) {
 			//reduction of 6db each 10 meters
-			pktPowerAtSnifferLocation -= (distanceToSender / 10) * 6;
+			pwrReductionInDb -= (distanceToSender / 10) * 6;
+			pwrReduction = Math.pow(10.0, ( pwrReductionInDb / 10 ));
 		}
+		pktPowerAtSnifferLocation = pkt.getPower() * pwrReduction;
 		return pktPowerAtSnifferLocation;
 	}
 	public void gotThesePkts ( List<Packet> listOfPktsInCurTime ) {
-		System.out.println("Sniffer=" + this.getId() + listOfPktsInCurTime.toString());
+		//System.out.println("Sniffer=" + this.getId() + listOfPktsInCurTime.toString());
 		if ( !listOfPktsInCurTime.isEmpty() ) {
 			for(Packet pkt : listOfPktsInCurTime) {
 				pkt.pwrAtSnifferLocation = pktPowerAtSnifferLocation(pkt);
@@ -152,7 +156,7 @@ public class BasicSniffer {
 				}
 			} else { //there are more than 1 pkt
 				//look for the one with highest power:
-				float maxPwr = 0;
+				double maxPwr = 0;
 				int pktIndex = 0;
 				Packet pktWithMaxPwr;
 				float pwrOfRestPkts = 0;
